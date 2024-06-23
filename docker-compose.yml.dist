@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  dev:
+    image: anton-users
+    ports: 
+      - 8413:8413
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: /main
+    volumes:
+      - .:/go/src/github.com/aaalik/anton-users
+    working_dir: /go/src/github.com/aaalik/anton-users
+    env_file:
+      - .env
+    environment:
+      - DB_WRITER_HOST=host.docker.internal
+      - DB_READER_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  default:
+    # Use a custom driver
+    driver: bridge
