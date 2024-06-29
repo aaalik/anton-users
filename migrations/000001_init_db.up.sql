@@ -11,5 +11,5 @@ CREATE TABLE IF NOT EXISTS users
     deleted_at BIGINT NOT NULL DEFAULT 0,
 
     PRIMARY KEY (id),
-    UNIQUE (username)
+    UNIQUE (username, deleted_at)
 );
