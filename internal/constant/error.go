@@ -5,11 +5,14 @@ import (
 )
 
 var (
+	// 401 Errors
+	ErrorInvalidLogin = xerrs.New("invalid login")
+
 	// 404 Errors
 	ErrorDataNotFound = xerrs.New("data not found")
 
 	// 422 Errors
-	ErrorInvalidUser = xerrs.New("User invalid")
+	ErrorInvalidUser = xerrs.New("invalid user")
 
 	// 500 Errors
 	ErrorSQLCreateTransaction   = xerrs.New("failed to write data")
@@ -25,6 +28,8 @@ var (
 )
 
 func init() {
+	xerrs.SetData(ErrorInvalidLogin, "status_code", 401)
+
 	xerrs.SetData(ErrorDataNotFound, "status_code", 404)
 
 	xerrs.SetData(ErrorInvalidUser, "status_code", 422)

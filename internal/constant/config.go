@@ -17,4 +17,8 @@ const (
 
 	ConfigHostAddress = "HOST_ADDRESS"
 	ConfigStopTimeout = "STOP_TIMEOUT"
+
+	ConfigJwtSecret        = "JWT_SECRET"
+	ConfigJwtSecretRefresh = "JWT_SECRET_REFRESH"
+	ConfigJwtExpire        = "JWT_EXPIRE"
 )

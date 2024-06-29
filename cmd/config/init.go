@@ -20,6 +20,11 @@ func NewConfig() Config {
 		panic(err)
 	}
 
+	jwtExpire, err := strconv.Atoi(os.Getenv(cons.ConfigJwtExpire))
+	if err != nil {
+		panic(err)
+	}
+
 	return Config{
 		Host: Host{
 			Address: os.Getenv(cons.ConfigHostAddress),
@@ -41,6 +46,11 @@ func NewConfig() Config {
 				Pass: os.Getenv(cons.ConfigSQLDBReadPass),
 				Name: os.Getenv(cons.ConfigSQLDBReadName),
 			},
+		},
+		JwtConf: JwtConf{
+			Secret:        os.Getenv(cons.ConfigJwtSecret),
+			SecretRefresh: os.Getenv(cons.ConfigJwtSecretRefresh),
+			Expire:        jwtExpire,
 		},
 	}
 }

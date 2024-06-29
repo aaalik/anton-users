@@ -50,9 +50,10 @@ func (uu *UserUsecase) UpdateUser(ctx context.Context, request *service.RequestU
 	}
 
 	reqUser := model.User{
-		Id:   user.Id,
-		Name: request.Name,
-		Dob:  request.Dob,
+		Id:     user.Id,
+		Name:   request.Name,
+		Dob:    request.Dob,
+		Gender: request.Gender,
 	}
 
 	tx, err := uu.ur.CreateTx(ctx)

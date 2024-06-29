@@ -11,9 +11,10 @@ type RequestCreateUser struct {
 }
 
 type RequestUpdateUser struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-	Dob  string `json:"dob"`
+	Id     string               `json:"id"`
+	Name   string               `json:"name"`
+	Dob    string               `json:"dob"`
+	Gender model.UserGenderEnum `json:"gender"`
 }
 
 type RequestListUser struct {

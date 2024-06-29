@@ -32,7 +32,7 @@ func (ur *UserRepository) CreateUser(ctx context.Context, tx *sqlx.Tx, user *mod
 
 	params := map[string]interface{}{
 		"id":         user.Id,
-		"username":   user.Name,
+		"username":   user.Username,
 		"password":   user.Password,
 		"name":       user.Name,
 		"dob":        user.Dob,
@@ -64,6 +64,7 @@ func (ur *UserRepository) UpdateUser(ctx context.Context, tx *sqlx.Tx, user *mod
 		SET
 		name = :name,
 		dob = :dob,
+		gender = :gender,
 		updated_at = :updated_at
 		WHERE id = :id
 	`, cons.SqlUserTable)
@@ -72,6 +73,7 @@ func (ur *UserRepository) UpdateUser(ctx context.Context, tx *sqlx.Tx, user *mod
 		"id":         user.Id,
 		"name":       user.Name,
 		"dob":        user.Dob,
+		"gender":     user.Gender,
 		"updated_at": time.Now().Unix(),
 	}
 
@@ -297,4 +299,35 @@ func (ur *UserRepository) buildSortQuery(queries *service.Queries) string {
 	}
 
 	return query
+}
+
+func (ur *UserRepository) FetchUserLogin(ctx context.Context, username string) (*model.User, error) {
+	user := model.User{}
+	query := fmt.Sprintf(`
+		SELECT
+		id, username, password
+		FROM %s
+		WHERE username = :username
+		AND deleted_at = 0
+	`, cons.SqlUserTable)
+
+	params := map[string]interface{}{
+		"username": username,
+	}
+
+	var args []interface{}
+	query, args, err := sqlx.Named(query, params)
+	if err != nil {
+		return nil, err
+	}
+	query = ur.dbr.Rebind(query)
+
+	err = ur.dbr.QueryRowxContext(ctx, query, args...).StructScan(&user)
+	if err == sql.ErrNoRows {
+		return nil, cons.ErrorDataNotFound
+	} else if err != nil {
+		return nil, xerrs.Mask(err, cons.ErrorSQLRead)
+	}
+
+	return &user, nil
 }

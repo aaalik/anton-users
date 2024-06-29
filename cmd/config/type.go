@@ -4,6 +4,7 @@ type Config struct {
 	Host        Host
 	StopTimeout int
 	SQLDB       SQLDB
+	JwtConf     JwtConf
 }
 
 type Host struct {
@@ -26,4 +27,10 @@ type SQLDBConfig struct {
 	User string
 	Pass string
 	Name string
+}
+
+type JwtConf struct {
+	Secret        string
+	SecretRefresh string
+	Expire        int
 }

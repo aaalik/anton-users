@@ -28,9 +28,13 @@ func (ir Route) Init() *chi.Mux {
 		chim.Recoverer,
 		chim.RealIP,
 		apimiddleware.RequestLogger(ir.log),
+		apimiddleware.CORS,
 	)
 	r.Route("/v1", func(r chi.Router) {
 		r.Mount("/user", ir.routeHandler.user())
+		r.Post("/login", ir.routeHandler.AuthHandler.Login)
+		r.Post("/refresh-token", ir.routeHandler.AuthHandler.RefreshToken)
+		r.Post("/register", ir.routeHandler.AuthHandler.Register)
 	})
 
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
