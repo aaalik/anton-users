@@ -3,6 +3,7 @@ package user
 import (
 	"net/http"
 
+	"github.com/aaalik/anton-users/internal/middleware"
 	"github.com/aaalik/anton-users/internal/service"
 	"github.com/aaalik/anton-users/internal/utils/validator"
 	"github.com/go-chi/chi"
@@ -85,6 +86,10 @@ func (uh *UserHandler) DetailUser(w http.ResponseWriter, r *http.Request) {
 		userID = chi.URLParam(r, "userID")
 		ctx    = r.Context()
 	)
+
+	if userID == "" {
+		userID = middleware.GetUserIdFromToken(r)
+	}
 
 	user, err := uh.uu.DetailUser(ctx, userID)
 	if err != nil {

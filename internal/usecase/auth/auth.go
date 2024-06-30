@@ -23,7 +23,7 @@ func (au *AuthUsecase) Login(ctx context.Context, username, password string) (*s
 	isValid := hasher.CheckPasswordHash(password, user.Password)
 
 	if !isValid {
-		return nil, cons.ErrorInvalidLogin
+		return nil, xerrs.Extend(cons.ErrorInvalidLogin)
 	}
 
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -75,7 +75,7 @@ func (au *AuthUsecase) RefreshToken(ctx context.Context, refreshToken string) (s
 	}
 
 	if !rfrshToken.Valid {
-		return "", 0, cons.ErrorInvalidLogin
+		return "", 0, xerrs.Extend(cons.ErrorInvalidLogin)
 	}
 
 	token := jwt.New(jwt.SigningMethodHS256)

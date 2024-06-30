@@ -36,6 +36,10 @@ func (ir Route) Init() *chi.Mux {
 		r.Post("/refresh-token", ir.routeHandler.AuthHandler.RefreshToken)
 		r.Post("/register", ir.routeHandler.AuthHandler.Register)
 	})
+	r.Group(func(r chi.Router) {
+		r.Use(apimiddleware.RequireAuth)
+		r.Get("/me", ir.routeHandler.UserHandler.DetailUser)
+	})
 
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
 		ir.log.Infof("%s %s", method, route)

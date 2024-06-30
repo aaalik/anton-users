@@ -146,7 +146,7 @@ func (ur *UserRepository) DetailUser(ctx context.Context, id string) (*model.Use
 
 	err = ur.dbr.QueryRowxContext(ctx, query, args...).StructScan(&user)
 	if err == sql.ErrNoRows {
-		return nil, cons.ErrorDataNotFound
+		return nil, xerrs.Extend(cons.ErrorDataNotFound)
 	} else if err != nil {
 		return nil, xerrs.Mask(err, cons.ErrorSQLRead)
 	}
@@ -324,7 +324,7 @@ func (ur *UserRepository) FetchUserLogin(ctx context.Context, username string) (
 
 	err = ur.dbr.QueryRowxContext(ctx, query, args...).StructScan(&user)
 	if err == sql.ErrNoRows {
-		return nil, cons.ErrorDataNotFound
+		return nil, xerrs.Extend(cons.ErrorDataNotFound)
 	} else if err != nil {
 		return nil, xerrs.Mask(err, cons.ErrorSQLRead)
 	}
