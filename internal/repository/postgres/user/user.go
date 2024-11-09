@@ -41,16 +41,16 @@ func (ur *UserRepository) CreateUser(ctx context.Context, tx *sqlx.Tx, user *mod
 		"updated_at": time.Now().Unix(),
 	}
 
-	var args []interface{}
-	query, args, err := sqlx.Named(query, params)
+	stmt, err := tx.PrepareNamedContext(ctx, query)
 	if err != nil {
+		err = xerrs.Mask(err, cons.ErrorSQLUpdateUser)
 		return err
 	}
-	query = ur.dbw.Rebind(query)
+	defer stmt.Close()
 
-	_, err = tx.ExecContext(ctx, query, args...)
+	_, err = stmt.ExecContext(ctx, params)
 	if err != nil {
-		err = xerrs.Mask(err, cons.ErrorSQLCreateUser)
+		err = xerrs.Mask(err, cons.ErrorSQLUpdateUser)
 		return err
 	}
 
@@ -77,14 +77,14 @@ func (ur *UserRepository) UpdateUser(ctx context.Context, tx *sqlx.Tx, user *mod
 		"updated_at": time.Now().Unix(),
 	}
 
-	var args []interface{}
-	query, args, err := sqlx.Named(query, params)
+	stmt, err := tx.PrepareNamedContext(ctx, query)
 	if err != nil {
+		err = xerrs.Mask(err, cons.ErrorSQLUpdateUser)
 		return err
 	}
-	query = ur.dbw.Rebind(query)
+	defer stmt.Close()
 
-	_, err = tx.ExecContext(ctx, query, args...)
+	_, err = stmt.ExecContext(ctx, params)
 	if err != nil {
 		err = xerrs.Mask(err, cons.ErrorSQLUpdateUser)
 		return err
@@ -107,16 +107,16 @@ func (ur *UserRepository) DeleteUser(ctx context.Context, tx *sqlx.Tx, id string
 		"deleted_at": time.Now().Unix(),
 	}
 
-	var args []interface{}
-	query, args, err := sqlx.Named(query, params)
+	stmt, err := tx.PrepareNamedContext(ctx, query)
 	if err != nil {
+		err = xerrs.Mask(err, cons.ErrorSQLUpdateUser)
 		return err
 	}
-	query = ur.dbw.Rebind(query)
+	defer stmt.Close()
 
-	_, err = tx.ExecContext(ctx, query, args...)
+	_, err = stmt.ExecContext(ctx, params)
 	if err != nil {
-		err = xerrs.Mask(err, cons.ErrorSQLDeleteUser)
+		err = xerrs.Mask(err, cons.ErrorSQLUpdateUser)
 		return err
 	}
 
@@ -137,14 +137,13 @@ func (ur *UserRepository) DetailUser(ctx context.Context, id string) (*model.Use
 		"id": id,
 	}
 
-	var args []interface{}
-	query, args, err := sqlx.Named(query, params)
+	stmt, err := ur.dbr.PrepareNamedContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
-	query = ur.dbr.Rebind(query)
+	defer stmt.Close()
 
-	err = ur.dbr.QueryRowxContext(ctx, query, args...).StructScan(&user)
+	err = stmt.QueryRowxContext(ctx, params).StructScan(&user)
 	if err == sql.ErrNoRows {
 		return nil, xerrs.Extend(cons.ErrorDataNotFound)
 	} else if err != nil {
@@ -169,8 +168,14 @@ func (ur *UserRepository) ListUser(ctx context.Context, request *service.Request
 	query := strings.Join([]string{selectQuery, whereQuery, orderQuery}, " ")
 	query = ur.dbr.Rebind(query)
 
-	rows, err := ur.dbr.QueryxContext(ctx, query, args...)
+	stmt, err := ur.dbr.PreparexContext(ctx, query)
 	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.QueryxContext(ctx, args...)
+	if err == sql.ErrNoRows {
 		return nil, xerrs.Mask(err, cons.ErrorSQLRead)
 	}
 	defer rows.Close()
@@ -199,7 +204,14 @@ func (ur *UserRepository) CountUsers(ctx context.Context, request *service.Reque
 	query := strings.Join([]string{selectQuery, whereQuery}, " ")
 	query = ur.dbr.Rebind(query)
 
-	err := ur.dbr.QueryRowxContext(ctx, query, args...).Scan(&count)
+	stmt, err := ur.dbr.PreparexContext(ctx, query)
+	if err != nil {
+		return 0, xerrs.Mask(err, cons.ErrorSQLRead)
+	}
+	defer stmt.Close()
+
+	err = stmt.QueryRowxContext(ctx, args...).Scan(&count)
+
 	if err != nil {
 		return 0, xerrs.Mask(err, cons.ErrorSQLRead)
 	}
@@ -315,14 +327,13 @@ func (ur *UserRepository) FetchUserLogin(ctx context.Context, username string) (
 		"username": username,
 	}
 
-	var args []interface{}
-	query, args, err := sqlx.Named(query, params)
+	stmt, err := ur.dbr.PrepareNamedContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
-	query = ur.dbr.Rebind(query)
+	defer stmt.Close()
 
-	err = ur.dbr.QueryRowxContext(ctx, query, args...).StructScan(&user)
+	err = stmt.QueryRowxContext(ctx, params).StructScan(&user)
 	if err == sql.ErrNoRows {
 		return nil, xerrs.Extend(cons.ErrorDataNotFound)
 	} else if err != nil {
