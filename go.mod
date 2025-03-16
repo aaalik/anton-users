@@ -18,8 +18,6 @@ require (
 	golang.org/x/crypto v0.20.0
 )
 
-require github.com/undefinedlabs/go-mpatch v1.0.7 // indirect
-
 require (
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
