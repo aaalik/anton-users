@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/aaalik/anton-users/internal/service"
-	"github.com/aaalik/anton-users/internal/utils/validator"
+	"github.com/aaalik/anton-users/pkg/validator"
 	"github.com/go-chi/render"
 )
 

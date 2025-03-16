@@ -1,12 +1,10 @@
 package user
 
-import (
-	"github.com/sirupsen/logrus"
-)
-
-func New(log *logrus.Logger, userRP iUserRepo) *UserUsecase {
+func New(userRP iUserRepo, dbu iDatabaseUtils, ru iRandomUtils, hu iHasherUtils) *UserUsecase {
 	return &UserUsecase{
-		log: log,
 		ur:  userRP,
+		dbu: dbu,
+		ru:  ru,
+		hu:  hu,
 	}
 }

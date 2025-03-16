@@ -12,8 +12,12 @@ import (
 	userRepo "github.com/aaalik/anton-users/internal/repository/postgres/user"
 	authUsecase "github.com/aaalik/anton-users/internal/usecase/auth"
 	userUsecase "github.com/aaalik/anton-users/internal/usecase/user"
-	"github.com/aaalik/anton-users/internal/utils/jwtconf"
+	"github.com/aaalik/anton-users/pkg/database"
+	"github.com/aaalik/anton-users/pkg/hasher"
 	httpResponse "github.com/aaalik/anton-users/pkg/httpresponse"
+	"github.com/aaalik/anton-users/pkg/jwtconf"
+	"github.com/aaalik/anton-users/pkg/jwtgen"
+	"github.com/aaalik/anton-users/pkg/utils"
 )
 
 func main() {
@@ -23,6 +27,10 @@ func main() {
 	dbr, dbw := cf.NewPostgres()
 	httpRes := httpResponse.NewHttpResponse(logr)
 	jwtConf := jwtconf.NewJwtConf(cf.JwtConf.Secret, cf.JwtConf.SecretRefresh, cf.JwtConf.Expire)
+	dbUtils := database.NewDB(dbr, dbw)
+	randUtils := utils.NewRandomUtils()
+	hashUtils := hasher.NewHasherUtils()
+	jwtUtils := jwtgen.NewJwtUtils(cf.JwtConf.Secret)
 
 	srv := cmd.NewServer(cf, logr, dbr, dbw)
 
@@ -32,8 +40,8 @@ func main() {
 
 	// init usecase
 	logr.Infoln("Initializing usecases")
-	authUC := authUsecase.New(logr, userRP, jwtConf)
-	userUC := userUsecase.New(logr, userRP)
+	authUC := authUsecase.New(userRP, jwtConf, dbUtils, randUtils, hashUtils, jwtUtils)
+	userUC := userUsecase.New(userRP, dbUtils, randUtils, hashUtils)
 
 	// init handler
 	logr.Infoln("Initializing handlers")

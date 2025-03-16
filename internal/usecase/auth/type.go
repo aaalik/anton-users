@@ -4,28 +4,45 @@ import (
 	"context"
 
 	"github.com/aaalik/anton-users/internal/model"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
 )
 
 //go:generate mockgen -source=type.go  -destination=auth_usecase_mock_test.go -package=auth
 type AuthUsecase struct {
-	log *logrus.Logger
 	ur  iUserRepo
-	jcu iJwtConfUtil
+	jcu iJwtConfUtils
+	dbu iDatabaseUtils
+	ru  iRandomUtils
+	hu  iHasherUtils
+	jwu iJwtUtils
 }
 
 type iUserRepo interface {
-	CreateTx(ctx context.Context) (*sqlx.Tx, error)
-	RollbackTx(ctx context.Context, tx *sqlx.Tx) error
-	CommitTx(ctx context.Context, tx *sqlx.Tx) error
-
 	FetchUserLogin(ctx context.Context, username string) (*model.User, error)
 	CreateUser(ctx context.Context, tx *sqlx.Tx, user *model.User) error
 }
 
-type iJwtConfUtil interface {
+type iJwtConfUtils interface {
 	GetSecret() string
 	GetSecretRefresh() string
 	GetExpire() int
+}
+
+type iDatabaseUtils interface {
+	ExecuteTx(ctx context.Context, tx *sqlx.Tx, fn func(ctx context.Context, tx *sqlx.Tx) error) error
+}
+
+type iRandomUtils interface {
+	UniqueID() string
+}
+
+type iHasherUtils interface {
+	HashPassword(password string) (string, error)
+	CheckPasswordHash(password, hash string) bool
+}
+
+type iJwtUtils interface {
+	GenerateToken(claims jwt.MapClaims) (string, error)
+	ParseToken(tokenString string) (*jwt.Token, error)
 }

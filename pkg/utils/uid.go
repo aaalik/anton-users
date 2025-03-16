@@ -2,6 +2,13 @@ package utils
 
 import "github.com/segmentio/ksuid"
 
-func UniqueID() string {
+type RandomUtils struct {
+}
+
+func NewRandomUtils() *RandomUtils {
+	return &RandomUtils{}
+}
+
+func (rut *RandomUtils) UniqueID() string {
 	return ksuid.New().String()
 }
