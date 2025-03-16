@@ -24,11 +24,11 @@ test:
 	@rm -f $(COVERAGE_FILE) $(FILTERED_COVERAGE_FILE)
 	@echo "mode: atomic" > $(COVERAGE_FILE)
 
-	@for pkg in $$(go list ./internal/... | grep vE $(IGNORED_PACKAGE)); do \
-		go test -coverprofile=profile.out -covermode=atomic $$pkg || exit1; \
-		if [-f profile.out]; then \
-			cat profile.out >> coverage.out; \
-			rm profile.out \
+	@for pkg in $$(go list ./internal/... | grep -vE $(IGNORED_PACKAGE)); do \
+		go test -coverprofile=profile.out -covermode=atomic $$pkg || exit 1; \
+		if [ -f profile.out ]; then \
+			cat profile.out >> $(COVERAGE_FILE); \
+			rm profile.out; \
 		fi; \
 	done
 
@@ -38,7 +38,7 @@ test:
 	@total_coverage=$$(go tool cover -func=$(FILTERED_COVERAGE_FILE) | grep '^total:' | awk '{print int($$3)}' | sed 's/%//g'); \
 	echo "Coverage threshold: ${COVERAGE_THRESHOLD}%"; \
 	echo "Total coverage: $$total_coverage%"; \
-	if [$$total_coverage -lt $(COVERAGE_THRESHOLD)]; then \
+	if [ $$total_coverage -lt $(COVERAGE_THRESHOLD) ]; then \
 		echo "Warning! Coverage below threshold!"; \
 		rm -f $(COVERAGE_FILE) $(FILTERED_COVERAGE_FILE); \
 		exit 1; \
