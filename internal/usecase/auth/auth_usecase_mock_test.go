@@ -281,31 +281,31 @@ func (m *MockiJwtUtils) EXPECT() *MockiJwtUtilsMockRecorder {
 }
 
 // GenerateToken mocks base method.
-func (m *MockiJwtUtils) GenerateToken(claims jwt.MapClaims) (string, error) {
+func (m *MockiJwtUtils) GenerateToken(claims jwt.MapClaims, secretKey string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateToken", claims)
+	ret := m.ctrl.Call(m, "GenerateToken", claims, secretKey)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GenerateToken indicates an expected call of GenerateToken.
-func (mr *MockiJwtUtilsMockRecorder) GenerateToken(claims interface{}) *gomock.Call {
+func (mr *MockiJwtUtilsMockRecorder) GenerateToken(claims, secretKey interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockiJwtUtils)(nil).GenerateToken), claims)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateToken", reflect.TypeOf((*MockiJwtUtils)(nil).GenerateToken), claims, secretKey)
 }
 
 // ParseToken mocks base method.
-func (m *MockiJwtUtils) ParseToken(tokenString string) (*jwt.Token, error) {
+func (m *MockiJwtUtils) ParseToken(tokenString, secretKey string) (*jwt.Token, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParseToken", tokenString)
+	ret := m.ctrl.Call(m, "ParseToken", tokenString, secretKey)
 	ret0, _ := ret[0].(*jwt.Token)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ParseToken indicates an expected call of ParseToken.
-func (mr *MockiJwtUtilsMockRecorder) ParseToken(tokenString interface{}) *gomock.Call {
+func (mr *MockiJwtUtilsMockRecorder) ParseToken(tokenString, secretKey interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseToken", reflect.TypeOf((*MockiJwtUtils)(nil).ParseToken), tokenString)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseToken", reflect.TypeOf((*MockiJwtUtils)(nil).ParseToken), tokenString, secretKey)
 }

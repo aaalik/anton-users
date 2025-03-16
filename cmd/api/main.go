@@ -30,7 +30,7 @@ func main() {
 	dbUtils := database.NewDB(dbr, dbw)
 	randUtils := utils.NewRandomUtils()
 	hashUtils := hasher.NewHasherUtils()
-	jwtUtils := jwtgen.NewJwtUtils(cf.JwtConf.Secret)
+	jwtUtils := jwtgen.NewJwtUtils()
 
 	srv := cmd.NewServer(cf, logr, dbr, dbw)
 

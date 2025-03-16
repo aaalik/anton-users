@@ -35,7 +35,7 @@ func (au *AuthUsecase) Login(ctx context.Context, username, password string) (*s
 		"exp":        expires,
 	}
 
-	token, err := au.jwu.GenerateToken(claims)
+	token, err := au.jwu.GenerateToken(claims, au.jcu.GetSecret())
 	if err != nil {
 		return nil, xerrs.Mask(err, cons.ErrorInvalidLogin)
 	}
@@ -50,7 +50,7 @@ func (au *AuthUsecase) Login(ctx context.Context, username, password string) (*s
 		"exp":        expiresRefresh,
 	}
 
-	refreshToken, err := au.jwu.GenerateToken(refreshClaims)
+	refreshToken, err := au.jwu.GenerateToken(refreshClaims, au.jcu.GetSecretRefresh())
 	if err != nil {
 		return nil, xerrs.Mask(err, cons.ErrorInvalidLogin)
 	}
@@ -66,7 +66,7 @@ func (au *AuthUsecase) Login(ctx context.Context, username, password string) (*s
 }
 
 func (au *AuthUsecase) RefreshToken(ctx context.Context, refreshToken string) (string, int64, error) {
-	rfrshToken, err := au.jwu.ParseToken(refreshToken)
+	rfrshToken, err := au.jwu.ParseToken(refreshToken, au.jcu.GetSecretRefresh())
 	if err != nil {
 		return "", 0, xerrs.Mask(err, cons.ErrorInvalidLogin)
 	}
@@ -84,7 +84,7 @@ func (au *AuthUsecase) RefreshToken(ctx context.Context, refreshToken string) (s
 		"exp":        expires,
 	}
 
-	token, err := au.jwu.GenerateToken(accessClaims)
+	token, err := au.jwu.GenerateToken(accessClaims, au.jcu.GetSecret())
 	if err != nil {
 		return "", 0, xerrs.Mask(err, cons.ErrorInvalidLogin)
 	}

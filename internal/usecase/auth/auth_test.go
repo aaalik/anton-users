@@ -26,7 +26,8 @@ func TestAuthUsecase_Login(t *testing.T) {
 	username := "username"
 	password := "password"
 	expire := 1000
-	// secret := "secret"
+	secret := "secret"
+	secretRefresh := "secret_refresh"
 	// secretFailed := ""
 
 	user := &model.User{
@@ -82,8 +83,10 @@ func TestAuthUsecase_Login(t *testing.T) {
 				mockUserRP.EXPECT().FetchUserLogin(gomock.Any(), username).Return(user, nil)
 				mockHasherUtils.EXPECT().CheckPasswordHash(password, user.Password).Return(true)
 				mockJWTConfUtils.EXPECT().GetExpire().Return(expire)
-				mockJWTUtils.EXPECT().GenerateToken(claims).Return(resp.Token, nil)
-				mockJWTUtils.EXPECT().GenerateToken(refreshClaims).Return(resp.RefreshToken, nil)
+				mockJWTConfUtils.EXPECT().GetSecret().Return(secret)
+				mockJWTUtils.EXPECT().GenerateToken(claims, secret).Return(resp.Token, nil)
+				mockJWTConfUtils.EXPECT().GetSecretRefresh().Return(secretRefresh)
+				mockJWTUtils.EXPECT().GenerateToken(refreshClaims, secretRefresh).Return(resp.RefreshToken, nil)
 			},
 			want:    resp,
 			wantErr: false,
@@ -117,7 +120,8 @@ func TestAuthUsecase_Login(t *testing.T) {
 				mockUserRP.EXPECT().FetchUserLogin(gomock.Any(), username).Return(user, nil)
 				mockHasherUtils.EXPECT().CheckPasswordHash(password, user.Password).Return(true)
 				mockJWTConfUtils.EXPECT().GetExpire().Return(expire)
-				mockJWTUtils.EXPECT().GenerateToken(claims).Return("", errors.New(gomock.Any().String()))
+				mockJWTConfUtils.EXPECT().GetSecret().Return(secret)
+				mockJWTUtils.EXPECT().GenerateToken(claims, secret).Return("", errors.New(gomock.Any().String()))
 			},
 			want:    nil,
 			wantErr: true,
@@ -130,8 +134,10 @@ func TestAuthUsecase_Login(t *testing.T) {
 				mockUserRP.EXPECT().FetchUserLogin(gomock.Any(), username).Return(user, nil)
 				mockHasherUtils.EXPECT().CheckPasswordHash(password, user.Password).Return(true)
 				mockJWTConfUtils.EXPECT().GetExpire().Return(expire)
-				mockJWTUtils.EXPECT().GenerateToken(claims).Return(resp.Token, nil)
-				mockJWTUtils.EXPECT().GenerateToken(refreshClaims).Return("", errors.New(gomock.Any().String()))
+				mockJWTConfUtils.EXPECT().GetSecret().Return(secret)
+				mockJWTUtils.EXPECT().GenerateToken(claims, secret).Return(resp.Token, nil)
+				mockJWTConfUtils.EXPECT().GetSecretRefresh().Return(secretRefresh)
+				mockJWTUtils.EXPECT().GenerateToken(refreshClaims, secretRefresh).Return("", errors.New(gomock.Any().String()))
 			},
 			want:    nil,
 			wantErr: true,
@@ -171,7 +177,8 @@ func TestAuthUsecase_RefreshToken(t *testing.T) {
 
 	tokenString := "token"
 	refreshTokenString := "refresh_token"
-	// secretRefresh := "secret_refresh"
+	secretRefresh := "secret_refresh"
+	secret := "secret"
 	expire := 3600
 	expires := time.Now().Add((time.Second * time.Duration(expire))).Unix()
 
@@ -212,9 +219,11 @@ func TestAuthUsecase_RefreshToken(t *testing.T) {
 			name:               "success",
 			refreshTokenString: refreshTokenString,
 			mock: func() {
-				mockJWTUtils.EXPECT().ParseToken(refreshTokenString).Return(refreshToken, nil)
+				mockJWTConfUtils.EXPECT().GetSecretRefresh().Return(secretRefresh)
+				mockJWTUtils.EXPECT().ParseToken(refreshTokenString, secretRefresh).Return(refreshToken, nil)
 				mockJWTConfUtils.EXPECT().GetExpire().Return(expire)
-				mockJWTUtils.EXPECT().GenerateToken(accessClaims).Return(tokenString, nil)
+				mockJWTConfUtils.EXPECT().GetSecret().Return(secret)
+				mockJWTUtils.EXPECT().GenerateToken(accessClaims, secret).Return(tokenString, nil)
 			},
 			want:    tokenString,
 			want1:   expires,
@@ -224,7 +233,8 @@ func TestAuthUsecase_RefreshToken(t *testing.T) {
 			name:               "failed - parse token",
 			refreshTokenString: refreshTokenString,
 			mock: func() {
-				mockJWTUtils.EXPECT().ParseToken(refreshTokenString).Return(nil, errors.New(gomock.Any().String()))
+				mockJWTConfUtils.EXPECT().GetSecretRefresh().Return(secretRefresh)
+				mockJWTUtils.EXPECT().ParseToken(refreshTokenString, secretRefresh).Return(nil, errors.New(gomock.Any().String()))
 			},
 			want:    "",
 			want1:   0,
@@ -234,7 +244,8 @@ func TestAuthUsecase_RefreshToken(t *testing.T) {
 			name:               "failed - invalid token",
 			refreshTokenString: refreshTokenString,
 			mock: func() {
-				mockJWTUtils.EXPECT().ParseToken(refreshTokenString).Return(refreshTokenInvalid, nil)
+				mockJWTConfUtils.EXPECT().GetSecretRefresh().Return(secretRefresh)
+				mockJWTUtils.EXPECT().ParseToken(refreshTokenString, secretRefresh).Return(refreshTokenInvalid, nil)
 			},
 			want:    "",
 			want1:   0,
@@ -244,9 +255,11 @@ func TestAuthUsecase_RefreshToken(t *testing.T) {
 			name:               "failed - generate token",
 			refreshTokenString: refreshTokenString,
 			mock: func() {
-				mockJWTUtils.EXPECT().ParseToken(refreshTokenString).Return(refreshToken, nil)
+				mockJWTConfUtils.EXPECT().GetSecretRefresh().Return(secretRefresh)
+				mockJWTUtils.EXPECT().ParseToken(refreshTokenString, secretRefresh).Return(refreshToken, nil)
 				mockJWTConfUtils.EXPECT().GetExpire().Return(expire)
-				mockJWTUtils.EXPECT().GenerateToken(accessClaims).Return("", errors.New(gomock.Any().String()))
+				mockJWTConfUtils.EXPECT().GetSecret().Return(secret)
+				mockJWTUtils.EXPECT().GenerateToken(accessClaims, secret).Return("", errors.New(gomock.Any().String()))
 			},
 			want:    "",
 			want1:   0,

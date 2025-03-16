@@ -43,6 +43,6 @@ type iHasherUtils interface {
 }
 
 type iJwtUtils interface {
-	GenerateToken(claims jwt.MapClaims) (string, error)
-	ParseToken(tokenString string) (*jwt.Token, error)
+	GenerateToken(claims jwt.MapClaims, secretKey string) (string, error)
+	ParseToken(tokenString, secretKey string) (*jwt.Token, error)
 }
